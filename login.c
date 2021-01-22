@@ -15,6 +15,25 @@ struct customers
 	char number[13];
 	struct address add;
 };
+
+struct employee
+{
+    char name[50];
+    char area[50];
+    char id[5];
+    int age;
+    char status[10];
+    float wage;
+} employee;
+
+struct delivery
+{
+    char name[50];
+    char date[10];
+    char time[10];
+    float price;
+    char order[20];
+} delivery;
 //PASSWORD VALIDATION//
 void Passvalid(char *pass)
 {
@@ -105,7 +124,28 @@ void signup()
      
     	printf("\nEnter Your Mobile Number :"); 
         scanf("%s", &mobile);
-    	strcpy(customers.number, mobile);
+        do
+	 {
+	 	count=0;
+	 	printf("enter mobile number : ");
+	 	scanf("%s" , &mobile);
+	 	if(strlen(mobile)!=11)
+	 	{
+	 		count++;
+	 		printf("Enter correct 11 digit contact number \n");
+		}
+	 	for(k=0 ; k<11 ; k++)
+	 	{
+	 		if(mobile[k]<'0' && mobile[k]>'9')
+	 		{
+	 			count++;
+	 			printf("invalid number\n");
+	 			break;
+			}
+		}
+	 	
+	 }while(count>0);
+      strcpy(customers.number, mobile);
     
 	
 	//address 
@@ -186,10 +226,177 @@ int i;
     	 	break;
 		 }
 	}
+	
+	printf("\n\n\n**********you are successfully logged in*********** ");
+	
+	if(strcmp(customers.pass, "AdminPanel786!") == 0)
+	{
+		system("cls");
+		admin(); //if password is admin, will redirect to admin panel.
+	}
+	else
+	{
+		system("cls");
+		orderfood();
+	}
+    
+    
+    
+}
 
-  //successfully logged in 
-    printf("\n\n\n**********you are successfully logged in*********** ");
-	orderfood();               
+
+void admin()
+{
+	char emp_id[5], a, name[10], stat[10], view = 'y';
+    int empsize = sizeof(struct employee);
+    char add_record = 'y';
+    char place[50] = "pechs";
+    
+    
+     FILE *fp, *fn;                                 //file for employee rcd
+     fp = fopen("employee.txt", "rb+");
+	 if(fp == NULL)
+     {
+        fp = fopen("employee.txt","wb+");
+        if(fp == NULL)
+        {
+            printf("Connot open file");
+        }
+     }
+     
+    while(1)
+    {
+    	printf("\n\n\nChoose an option\n\n 1)Add A New Employee Record\n 2)View list of Employees\n 3)View Employee by name\n 4)View Employees by status(active or inactive)\n 5)Delivery history by area\n 6)Exit\n");
+    	fflush(stdin);
+        scanf("\n%c", &a);
+		switch(a)
+    	{
+    	case '1':
+    		add_record = 'y';
+    		while(add_record == 'y' || add_record == 'Y')
+    		{
+    		fseek(fp,0,SEEK_END);
+	        printf("\nName: ");
+            scanf("%s", &employee.name);
+            printf("Employee-ID: ");
+            scanf("%s", &employee.id);
+            printf("Age: ");
+            scanf("%d", &employee.age);
+	        printf("Area of Delivery: ");
+            scanf("%s", &employee.area);
+            printf("Status: ");
+            scanf("%s", &employee.status);
+            printf("Base Salary: ");
+            scanf("%f", &employee.wage);
+            fwrite(&employee,empsize,1,fp);
+            printf("\nWould you like to add another record(y/n):");
+            fflush(stdin);
+            scanf("%c", &add_record);
+			}
+			break;
+		
+		case '2':
+			rewind(fp);
+			printf("\n\tName \tEmp-ID \tAge \tBase-Salary \tArea \tStatus");
+			while( fread(&employee, empsize, 1, fp))
+            {
+			printf("\n\n\t %s", employee.name);
+			printf("\t%s", employee.id);
+            printf("\t%d", employee.age);
+            printf("\t%.2f", employee.wage);
+            printf("\t%s", employee.area);
+            printf("\t%s", employee.status);
+            }               	
+			break;
+		
+		case '3':
+			view = 'y';
+			while(view == 'y' || view == 'Y')
+			{
+				rewind(fp);
+				printf("\nEnter the employee name to view details: ");
+				fflush(stdin);
+                scanf("%s", &name);
+                while(fread(&employee, empsize, 1, fp))
+                {
+                	if(strcmp(name, employee.name) == 0)
+                	{
+			         printf("\n\nName:\t %s", employee.name);
+			         printf("\nEmp-ID:\t %s", employee.id);
+                     printf("\nAge:\t %d", employee.age);
+                     printf("\nBase Salary:\t %.2f", employee.wage);
+                     printf("\nDelivery Area:\t %s", employee.area);
+                     printf("\nStatus: \t %s", employee.status);		                                    
+					}
+				}  
+				printf("\n\nWould you like to view another record(y/n):");
+                fflush(stdin);
+                scanf("%c", &view);              
+			}
+			break;
+		case '4':
+			view = 'y';
+			while(view == 'y' || view == 'Y')
+			{
+				rewind(fp);
+				printf("\nEnter the status to view employees ");
+				fflush(stdin);
+                scanf("%s", &stat);
+                while(fread(&employee, empsize, 1, fp))
+                {
+                	if(strcmp(stat, employee.status) == 0)
+                	{
+			         printf("\n\nName:\t %s", employee.name);
+			         printf("\nEmp-ID:\t %s", employee.id);
+                     printf("\nAge:\t %d", employee.age);
+                     printf("\nBase Salary:\t %.2f", employee.wage);
+                     printf("\nDelivery Area:\t %s", employee.area);
+                     printf("\nStatus: \t %s", employee.status);		                                    
+					}
+				}  
+				printf("\n\nWould you like to pass your query again(y/n):");
+                fflush(stdin);
+                scanf("%c", &view);              
+			}
+			break;
+			
+		case '5':
+			view = 'y';
+			while(view == 'y' || view == 'Y')
+			{
+				rewind(fp);
+				printf("\nEnter the area to view deliveries: ");
+				fflush(stdin);
+                scanf("%s", &place);
+                while(fread(&employee, empsize, 1, fp))
+                {
+                	if(strcmp(place, employee.area) == 0)
+                	{
+                	 strcpy(delivery.name, employee.name);
+                	 delivery.price = 1000;
+                	 strcpy(delivery.date,"21/01/2020");
+                	 strcpy(delivery.time, "10:34:25");
+                	 strcpy(delivery.order, "Fries x2");
+			         printf("\n\nName:\t %s", delivery.name);
+			         printf("\nTime:\t %s", delivery.date);
+                     printf("\nDate:\t %s", delivery.time);
+                     printf("\nAmount:\t %.2f", delivery.price);
+                     printf("\nDelivery Area:\t %s", employee.area);
+                     printf("\nOrder: \t %s", delivery.order);		                                    
+					}
+				}  
+				printf("\n\nWould you like to pass your query again(y/n):");
+                fflush(stdin);
+                scanf("%c", &view);              
+			}
+			break;
+		case '6':
+			fclose(fp);
+            exit(0);
+			
+		}
+    }
+    return;
 }
 
 
@@ -747,4 +954,3 @@ int main()
 	return;
         
 } 
-
