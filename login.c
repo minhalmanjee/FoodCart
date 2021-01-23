@@ -1,7 +1,8 @@
- #include<stdio.h>
+#include<stdio.h>
 #include<string.h>
 #include<conio.h>
 #include <windows.h>
+
 
 struct address
 {
@@ -16,6 +17,15 @@ struct customers
 	struct address add;
 };
 
+struct goods
+{
+    char name[50];
+    char id[5];
+    int age; //months of expiry
+    char status[10]; //expired or not
+    float wage;
+} goods;
+
 struct employee
 {
     char name[50];
@@ -29,11 +39,12 @@ struct employee
 struct delivery
 {
     char name[50];
-    char date[10];
-    char time[10];
+    char date_time[20];
     float price;
     char order[20];
 } delivery;
+
+
 //PASSWORD VALIDATION//
 void Passvalid(char *pass)
 {
@@ -75,21 +86,10 @@ void signup()
 	struct customers customers ;
 	printf("\tFOR SIGNING UP PLEASE FILL THE FORM BELOW\n");
     
-//	// for name and validation
-//	do
-//	{
+
 	printf("Enter Your name :"); 
     scanf("%s", &customers.name); 
-//    for (i = 0; name[i] = '\0'; i++) 
-//	{ 
-//        if (((name[i] < 'a' && name[i] > 'z') || (name[i] < 'A' && name[i] > 'Z'))); 
-//        {
-//        	error++;
-//		}
-//    }
-//    } while(error == 0);
-//    strcpy(customers.name , name);
-    
+   
     
     //email and validation
     do
@@ -178,29 +178,7 @@ void signup()
 	}
 	fwrite(&customers, sizeof(struct customers), 1, fcd);
 	fclose(fcd);
-  
-//    //for proceeding 
-//    printf("\n\nWould you like to proceed and place an order");
-//    printf("\nTo login and view menu press 1 \n To exit press 2\n\nYour Choice: ");
-//    while(1)
-//    {
-//    	scanf("%c" , &proceed);
-//    	switch (proceed)
-//    {
-//    	case '1':
-//    		login();
-//    		break;
-//    	case '2':
-//    		printf("\nThankyou for signing up, have a nice day");
-//		    exit(1);
-//		    break;
-//		default:
-//			printf("\nPlease Enter a valid choice: ");
-//			break;
-//	}
-//	return;	
-//	}
-    
+   
     
     	
 } 
@@ -221,7 +199,7 @@ int i;
     scanf("%s", &pass);
     while(fread(&customers, sizeof(customers), 1, fcd))
     {
-    	 if(strcmp(email, customers.email) == 0 || strcmp(pass, customers.pass))
+    	 if(strcmp(email, customers.email) == 0 && strcmp(pass, customers.pass) == 0)
     	 {
     	 	break;
 		 }
@@ -266,7 +244,7 @@ void admin()
      
     while(1)
     {
-    	printf("\n\n\nChoose an option\n\n 1)Add A New Employee Record\n 2)View list of Employees\n 3)View Employee by name\n 4)View Employees by status(active or inactive)\n 5)Delivery history by area\n 6)Exit\n");
+    	printf("\n\n\nChoose an option\n\n 1)Add A New Employee Record\n 2)View list of Employees\n 3)View Employee by name\n 4)View Employees by status(active or inactive)\n 5)Delivery history by area\n 6)Exit\n 7)Go to goods-admin");
     	fflush(stdin);
         scanf("\n%c", &a);
 		switch(a)
@@ -373,13 +351,12 @@ void admin()
                 	if(strcmp(place, employee.area) == 0)
                 	{
                 	 strcpy(delivery.name, employee.name);
-                	 delivery.price = 1000;
-                	 strcpy(delivery.date,"21/01/2020");
-                	 strcpy(delivery.time, "10:34:25");
+                	 time_t curtime;
+                     time ( &curtime );
+                     strcpy(delivery.date_time, ctime (&curtime));
                 	 strcpy(delivery.order, "Fries x2");
 			         printf("\n\nName:\t %s", delivery.name);
-			         printf("\nTime:\t %s", delivery.date);
-                     printf("\nDate:\t %s", delivery.time);
+			         printf("\nDate and Time:\t %s", delivery.date_time);
                      printf("\nAmount:\t %.2f", delivery.price);
                      printf("\nDelivery Area:\t %s", employee.area);
                      printf("\nOrder: \t %s", delivery.order);		                                    
@@ -389,6 +366,154 @@ void admin()
                 fflush(stdin);
                 scanf("%c", &view);              
 			}
+			break;
+		case '6':
+			fclose(fp);
+            exit(0);
+        case '7':{
+        	admin2();
+			break;
+		}
+			
+		}
+    }
+    return;
+}
+
+
+
+void admin2()
+{
+    char emp_id[5], a, name[10], stat[10], view = 'y';
+    int empsize = sizeof(struct goods);
+    char add_record = 'y';
+    char place[50] = "pechs";
+    
+    
+     FILE *fp, *fn;                                 //file for employee rcd
+     fp = fopen("goods.txt", "rb+");
+	 if(fp == NULL)
+     {
+        fp = fopen("goods.txt","wb+");
+        if(fp == NULL)
+        {
+            printf("Connot open file");
+        }
+     }
+     
+    while(1)
+    {
+    	printf("\n\n\nChoose an option\n\n 1)Add A New good Record\n 2)View list of goods\n 3)View raw goods by name\n 4)View raw goods by status(expired or unexpired)\n 5)Delete goods\n 6)Exit\n");
+    	fflush(stdin);
+        scanf("\n%c", &a);
+		switch(a)
+    	{
+    	case '1':
+    		add_record = 'y';
+    		while(add_record == 'y' || add_record == 'Y')
+    		{
+    		fseek(fp,0,SEEK_END);
+	        printf("\nName: ");
+            scanf("%s", &goods.name);
+            printf("Employee-ID: ");
+            scanf("%s", &goods.id);
+            printf("Status(expired or not): ");
+            scanf("%s", &goods.status);
+            printf("Price: ");
+            scanf("%f", &goods.wage);
+            fwrite(&goods,empsize,1,fp);
+            printf("\nWould you like to add another record(y/n):");
+            fflush(stdin);
+            scanf("%c", &add_record);
+			}
+			break;
+		
+		case '2':
+			rewind(fp);
+			printf("\n\tName \tGoods-ID \tStatus \tPrice");
+			while( fread(&goods, empsize, 1, fp))
+            {
+			printf("\n\n\t %s", goods.name);
+			printf("\t%s", goods.id);
+			printf("\t%s", goods.status);
+            printf("\t%.2f", goods.wage);
+            }               	
+			break;
+		
+		case '3':
+			view = 'y';
+			while(view == 'y' || view == 'Y')
+			{
+				rewind(fp);
+				printf("\nEnter the raw goods name to view details: ");
+				fflush(stdin);
+                scanf("%s", &name);
+                while(fread(&goods, empsize, 1, fp))
+                {
+                	if(strcmp(name, goods.name) == 0)
+                	{
+			         printf("\n\nName:\t %s", goods.name);
+			         printf("\nEmp-ID:\t %s", goods.id);
+                     printf("\nBase Salary:\t %.2f", goods.wage);
+                     printf("\nStatus: \t %s", goods.status);		                                    
+					}
+				}  
+				printf("\n\nWould you like to view another record(y/n):");
+                fflush(stdin);
+                scanf("%c", &view);              
+			}
+			break;
+		case '4':
+			view = 'y';
+			while(view == 'y' || view == 'Y')
+			{
+				rewind(fp);
+				printf("\nEnter the status to view goods ");
+				fflush(stdin);
+                scanf("%s", &stat);
+                while(fread(&goods, empsize, 1, fp))
+                {
+                	if(strcmp(stat, goods.status) == 0)
+                	{
+			         printf("\n\nName:\t %s", goods.name);
+			         printf("\nEmp-ID:\t %s", goods.id);
+                     printf("\nBase Salary:\t %.2f", goods.wage);
+                     printf("\nStatus: \t %s", goods.status);		                                    
+					}
+				}  
+				printf("\n\nWould you like to pass your query again(y/n):");
+                fflush(stdin);
+                scanf("%c", &view);              
+			}
+			break;
+			
+		case '5':
+			system("cls");
+			FILE * ft;
+            char another = 'y';
+            while(another == 'y')
+            {
+                printf("\nEnter name of goods to delete: ");
+                scanf("%s", &name);
+                ft = fopen("Temp.txt","wb");  /// create a intermediate file for temporary storage
+                rewind(fp); /// move record to starting of file
+                while(fread(&goods,empsize,1,fp) == 1)  /// read all records from file
+                {
+                    if(strcmp(goods.name,name) != 0)  /// if the entered record match
+                    {
+                        fwrite(&goods,empsize,1,ft); /// move all records except the one that is to be deleted to temp file
+                    }
+                }
+                fclose(fp);
+                fclose(ft);
+                remove("goods.txt"); /// remove the orginal file
+                rename("Temp.txt","goods.txt"); /// rename the temp file to original file name
+                fp = fopen("goods.txt", "rb+");
+                printf("Delete another record(y/n)");
+                fflush(stdin);
+                another = getche();
+            }
+            break;
 			break;
 		case '6':
 			fclose(fp);
@@ -409,9 +534,9 @@ int orderfood()
 	int price1 = 0;
 	int price2=0;
 	int price3 =0;
-	
+	 FILE * fcd = fopen("customerdetails.txt", "rb");
 	int a,q1,q2,q3,q4;
-		printf("\n\n\n\tABC online restaurant order\n\t\tWelcome\n\nPlease select from the menu below\nB = Burger\nF = French Fries\nP = Pizza\nS = Sandwiches\nHow many types of snacks you want to order(Enter a number between 1 and 4):");
+		printf("\n\n\n\tFOOD CART MENU\n\t\tWelcome\n\nPlease select from the menu below\nB = Burger\nF = French Fries\nP = Pizza\nS = Sandwiches\nHow many types of snacks you want to order(Enter a number between 1 and 4):");
 	scanf("%d", & a);
     switch (a)
 	{
@@ -902,9 +1027,10 @@ int orderfood()
 			printf("\nThankyou for your order... have a nice day!");
 			break;	
 	}
+	
+	
+
 }
-
-
 
 
 
@@ -916,8 +1042,8 @@ int main()
 	{
 		printf("\tWelcome to FOODCART "); 
   
-        printf("\n\n1)SIGNUP\n"); 
-        printf("2)LOGIN\n3)ORDER FOOD\n\n"); 
+        printf("\n\n1)SIGNUP WITH FOODCART\n"); 
+        printf("2)LOGIN TO ORDER\n3)EXIT\n\n"); 
         printf("Enter your choice\t"); 
         scanf("%d", &choice); 
   
@@ -935,12 +1061,7 @@ int main()
             login(); 
             break; 
         } 
-  //   for ordering food   
         case 3: { 
-            orderfood();
-			break; 
-        } 
-        case 4: { 
                 printf("Thankyou for visiting FOODCART");
 				exit(1);
         }
