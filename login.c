@@ -122,8 +122,6 @@ void signup()
    
    //number and its validation
      
-    	printf("\nEnter Your Mobile Number :"); 
-        scanf("%s", &mobile);
         do
 	 {
 	 	count=0;
@@ -228,6 +226,7 @@ void admin()
 	char emp_id[5], a, name[10], stat[10], view = 'y';
     int empsize = sizeof(struct employee);
     char add_record = 'y';
+    char id[5];
     char place[50] = "pechs";
     
     
@@ -257,7 +256,20 @@ void admin()
 	        printf("\nName: ");
             scanf("%s", &employee.name);
             printf("Employee-ID: ");
-            scanf("%s", &employee.id);
+            scanf("%s", &id);
+            rewind(fp);
+            while(fread(&employee, empsize, 1, fp))  //unique goods id
+            {
+				if(strcmp(id, employee.id) != 0)
+            	continue;
+            	else
+            	{
+            		printf("Enter unique Employee-id: ");
+                    scanf("%s", &id);
+                    rewind(fp);
+				}
+			}
+			strcpy(employee.id, id);
             printf("Age: ");
             scanf("%d", &employee.age);
 	        printf("Area of Delivery: ");
@@ -387,7 +399,7 @@ void admin2()
     char emp_id[5], a, name[10], stat[10], view = 'y';
     int empsize = sizeof(struct goods);
     char add_record = 'y';
-    char place[50] = "pechs";
+    char id[5];
     
     
      FILE *fp, *fn;                                 //file for employee rcd
@@ -415,8 +427,22 @@ void admin2()
     		fseek(fp,0,SEEK_END);
 	        printf("\nName: ");
             scanf("%s", &goods.name);
-            printf("Employee-ID: ");
-            scanf("%s", &goods.id);
+            printf("Goods-ID: ");
+            scanf("%s", &id);
+            rewind(fp);
+            while(fread(&goods, empsize, 1, fp))  //unique goods id
+            {
+				if(strcmp(id, goods.id) != 0)
+            	continue;
+    
+            	else
+            	{
+            		printf("Enter unique goods-id: ");
+                    scanf("%s", &id);
+                    rewind(fp);
+				}
+			}
+			strcpy(goods.id, id);
             printf("Status(expired or not): ");
             scanf("%s", &goods.status);
             printf("Price: ");
